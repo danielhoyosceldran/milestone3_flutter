@@ -10,13 +10,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false,
       title: 'TimeTracker',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: Colors.blueGrey[50],
+        primarySwatch: Colors.blueGrey,
         textTheme: const TextTheme(
             subtitle1: TextStyle(fontSize:20.0),
             bodyText2:TextStyle(fontSize:20.0)),
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        textTheme: const TextTheme(
+          subtitle1: TextStyle(fontSize:20.0),
+          bodyText2:TextStyle(fontSize:20.0)),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.blueGrey
+        ),
       ),
         home: PageActivities()
     );

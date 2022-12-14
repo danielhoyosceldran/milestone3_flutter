@@ -22,8 +22,34 @@ class _PageActivitiesState extends State<PageActivities> {
     );
   }
 
+  Widget _buildRowActionMenu(BuildContext context, int index) {
+    if (index == 0) {
+      return ListTile(
+        title: const Text('Add project'),
+        leading: const Icon(Icons.add),
+        iconColor: Colors.blueGrey,
+        onTap: () => {},
+      );
+    }
+    return ListTile(
+      title: const Text('Add task'),
+      leading: const Icon(Icons.add),
+      iconColor: Colors.blueGrey,
+      onTap: () => {},
+    );
+  }
+
   void _addActivity(){
-    print("hola");
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return ListView.separated(
+            itemBuilder: (BuildContext context, int index) => _buildRowActionMenu(context, index),
+            separatorBuilder: (BuildContext context, int index) => const Divider(),
+            itemCount: 2
+        );
+      },
+    );
   }
 
   Widget _buildRow(Activity activity, int index) {
@@ -35,8 +61,8 @@ class _PageActivitiesState extends State<PageActivities> {
       return ListTile(
         title: Text('${activity.name}'),
         trailing: Text('$strDuration'),
-        leading: Icon(Icons.folder),
-        iconColor: Colors.blue,
+        leading: const Icon(Icons.folder),
+        iconColor: Colors.blueGrey,
         onTap: () => {},
         // TODO, navigate down to show children tasks and projects
       );
@@ -57,9 +83,9 @@ class _PageActivitiesState extends State<PageActivities> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Time Tracker"),
+        title: const Text("Time Tracker"),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.home),
+          IconButton(icon: const Icon(Icons.home),
               onPressed: () {}
             // TODO go home page = root
           ),
@@ -80,7 +106,7 @@ class _PageActivitiesState extends State<PageActivities> {
         onPressed: () {
           _addActivity();
         },
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.blueGrey,
         child: const Icon(Icons.add),
       ),
     );
