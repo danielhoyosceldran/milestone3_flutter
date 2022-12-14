@@ -1,3 +1,6 @@
+import 'package:intellij_project/page_activities.dart';
+import 'package:intellij_project/PageIntervals.dart';
+
 import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
@@ -7,6 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+        debugShowCheckedModeBanner: false,
       title: 'TimeTracker',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -14,14 +18,7 @@ class MyApp extends StatelessWidget {
             subtitle1: TextStyle(fontSize:20.0),
             bodyText2:TextStyle(fontSize:20.0)),
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('TimeTracker'),
-        ),
-        body: const Center(
-          child: Text('Hello'),
-        ),
-      ),
+        home: PageActivities()
     );
   }
 }
