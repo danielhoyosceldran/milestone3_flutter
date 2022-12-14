@@ -1,4 +1,4 @@
-import 'package:timetracker_app/tree.dart';
+import 'package:intellij_project/tree.dart';
 import 'package:flutter/material.dart';
 
 class PageActivities extends StatefulWidget {
