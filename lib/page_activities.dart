@@ -22,6 +22,10 @@ class _PageActivitiesState extends State<PageActivities> {
     );
   }
 
+  void _addActivity(){
+    print("hola");
+  }
+
   Widget _buildRow(Activity activity, int index) {
     String strDuration = Duration(seconds: activity.duration).toString().split('.').first;
     // split by '.' and taking first element of resulting list
@@ -31,6 +35,8 @@ class _PageActivitiesState extends State<PageActivities> {
       return ListTile(
         title: Text('${activity.name}'),
         trailing: Text('$strDuration'),
+        leading: Icon(Icons.folder),
+        iconColor: Colors.blue,
         onTap: () => {},
         // TODO, navigate down to show children tasks and projects
       );
@@ -51,7 +57,7 @@ class _PageActivitiesState extends State<PageActivities> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(tree.root.name),
+        title: Text("Time Tracker"),
         actions: <Widget>[
           IconButton(icon: Icon(Icons.home),
               onPressed: () {}
@@ -69,6 +75,13 @@ class _PageActivitiesState extends State<PageActivities> {
             _buildRow(tree.root.children[index], index),
         separatorBuilder: (BuildContext context, int index) =>
         const Divider(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _addActivity();
+        },
+        backgroundColor: Colors.blue,
+        child: const Icon(Icons.add),
       ),
     );
   }
