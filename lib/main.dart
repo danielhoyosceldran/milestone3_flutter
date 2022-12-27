@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
           backgroundColor: Colors.blueGrey
         ),
       ),
-        home: PageActivities()
+        home: PageActivities(0)
     );
   }
 }
