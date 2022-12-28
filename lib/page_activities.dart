@@ -1,5 +1,5 @@
 import 'package:intellij_project/tree.dart';
-import 'package:intellij_project/PageIntervals.dart';
+import 'package:intellij_project/page_intervals.dart';
 import 'package:flutter/material.dart';
 import 'package:intellij_project/tree.dart' hide getTree;
 // the old getTree()
@@ -19,8 +19,8 @@ class PageActivities extends StatefulWidget {
 class _PageActivitiesState extends State<PageActivities> {
   late Tree tree;
 
-  late int id;
-  late Future<Tree> futureTree;
+  late int id; // Ha de ser late? Al tutorial no ho fica
+  late Future<Tree> futureTree; // idem
 
   late Timer _timer;
   static const int periodeRefresh = 6;
@@ -119,7 +119,7 @@ class _PageActivitiesState extends State<PageActivities> {
         },
       );
     }
-    return ListTile(
+    return const ListTile(
       title: Text('filed'),
     );
   }
@@ -143,8 +143,20 @@ class _PageActivitiesState extends State<PageActivities> {
             appBar: AppBar(
               title: Text(snapshot.data!.root.name), // updated 16-dec-2022
               actions: <Widget>[
-                IconButton(icon: Icon(Icons.home),
-                    onPressed: () {} // TODO go home page = root
+                IconButton(icon: const Icon(Icons.home),
+                    onPressed: () {
+                      IconButton(icon: const Icon(Icons.home),
+                          onPressed: () {
+                            while(Navigator.of(context).canPop()) {
+                              print("pop");
+                              Navigator.of(context).pop();
+                            }
+                            /* this works also:
+  Navigator.popUntil(context, ModalRoute.withName('/'));
+  */
+                            PageActivities(0);
+                          });
+                    } // TODO go home page = root
                 ),
                 //TODO other actions
               ],
@@ -166,7 +178,7 @@ class _PageActivitiesState extends State<PageActivities> {
         return Container(
             height: MediaQuery.of(context).size.height,
             color: Colors.white,
-            child: Center(
+            child: const Center(
               child: CircularProgressIndicator(),
             ));
       },

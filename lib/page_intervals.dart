@@ -40,7 +40,19 @@ class _PageIntervalsState extends State<PageIntervals> {
               title: Text(snapshot.data!.root.name), // updated 16-dec-2022
               actions: <Widget>[
                 IconButton(icon: Icon(Icons.home),
-                  onPressed: () {}, // TODO
+                  onPressed: () {
+                    IconButton(icon: Icon(Icons.home),
+                        onPressed: () {
+                          while(Navigator.of(context).canPop()) {
+                            print("pop");
+                            Navigator.of(context).pop();
+                          }
+                          /* this works also:
+  Navigator.popUntil(context, ModalRoute.withName('/'));
+  */
+                          PageIntervals(0); // Ns si és PageIntervals o PageActivities com posava al tutorial
+                        });
+                  }, // TODO
                 )
               ],
             ),

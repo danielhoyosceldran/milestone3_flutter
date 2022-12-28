@@ -1,5 +1,5 @@
 import 'package:intellij_project/page_activities.dart';
-import 'package:intellij_project/PageIntervals.dart';
+import 'package:intellij_project/page_intervals.dart';
 
 import 'package:flutter/material.dart';
 

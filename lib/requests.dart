@@ -6,7 +6,7 @@ final http.Client client = http.Client();
 // better than http.get() if multiple requests to the same server
 
 // If you connect the Android emulator to the webserver listening to localhost:8080
-const String baseUrl = "http://10.0.2.2:8080";
+const String baseUrl = "https://70cd-93-176-129-57.eu.ngrok.io/";//"http://10.0.2.2:8080";
 
 // If instead you want to use a real phone, you need ngrok to redirect
 // localhost:8080 to some temporal Url that ngrok.com provides for free: run
@@ -17,6 +17,7 @@ const String baseUrl = "http://10.0.2.2:8080";
 // https://medium.com/@vnbnews.vn/how-can-i-access-my-localhost-from-my-real-android-ios-device-d037fd192cdd
 
 Future<Tree> getTree(int id) async {
+  print("Start connection");
   String uri = "$baseUrl/get_tree?$id";
   final response = await client.get(Uri.parse(uri)); // updated 16-dec-2022
   // response is NOT a Future because of await but since getTree() is async,
@@ -37,7 +38,7 @@ Future<Tree> getTree(int id) async {
 
 Future<void> start(int id) async {
   String uri = "$baseUrl/start?$id";
-  final response = await client.get(uri);
+  final response = await client.get(Uri.parse(uri));
   if (response.statusCode == 200) {
     print("statusCode=$response.statusCode");
   } else {
@@ -47,8 +48,8 @@ Future<void> start(int id) async {
 }
 
 Future<void> stop(int id) async {
-  String uri = "$baseUrl/stop?$id";
-  final response = await client.get(uri);
+  String uri = "$baseUrl/stop?$id"; //$id instead of "1"
+  final response = await client.get(Uri.parse(uri));
   if (response.statusCode == 200) {
     print("statusCode=$response.statusCode");
   } else {
