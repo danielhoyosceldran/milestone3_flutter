@@ -24,6 +24,7 @@ class _PageActivitiesState extends State<PageActivities> {
 
   late Timer _timer;
   static const int periodeRefresh = 6;
+  // better a multiple of periode in TimeTracker, 2 seconds
 
   void _activateTimer() {
     _timer = Timer.periodic(Duration(seconds: periodeRefresh), (Timer t) {
@@ -33,30 +34,43 @@ class _PageActivitiesState extends State<PageActivities> {
   }
 
   @override
+  void dispose() {
+    // "The framework calls this method when this State object will never build again"
+    // therefore when going up
+    _timer.cancel();
+    super.dispose();
+  }
+
+  @override
   void initState() {
     super.initState();
     id = widget.id; // of PageActivities
     futureTree = requests.getTree(id);
+    _activateTimer();
   }
 
   void _navigateDownActivities(int childId) {
+    _timer.cancel();
     // we can not do just _refresh() because then the up arrow doesnt appear in the appbar
     Navigator.of(context)
         .push(MaterialPageRoute<void>(
       builder: (context) => PageActivities(childId),
     )).then( (var value) {
+      _activateTimer();
       _refresh();
     });
+    //https://stackoverflow.com/questions/49830553/how-to-go-back-and-refresh-the-previous-page-in-flutter?noredirect=1&lq=1
   }
 
   void _navigateDownIntervals(int childId) {
+    _timer.cancel();
     Navigator.of(context)
         .push(MaterialPageRoute<void>(
       builder: (context) => PageIntervals(childId),
     )).then( (var value) {
+      _activateTimer();
       _refresh();
     });
-    //https://stackoverflow.com/questions/49830553/how-to-go-back-and-refresh-the-previous-page-in-flutter?noredirect=1&lq=1
   }
 
   Widget _buildRowActionMenu(BuildContext context, int index) {
@@ -80,10 +94,13 @@ class _PageActivitiesState extends State<PageActivities> {
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
-        return ListView.separated(
-            itemBuilder: (BuildContext context, int index) => _buildRowActionMenu(context, index),
-            separatorBuilder: (BuildContext context, int index) => const Divider(),
-            itemCount: 2
+        return Container(
+          height: 130,
+          child: ListView.separated(
+              itemBuilder: (BuildContext context, int index) => _buildRowActionMenu(context, index),
+              separatorBuilder: (BuildContext context, int index) => const Divider(),
+              itemCount: 2
+          ),
         );
       },
     );
@@ -143,22 +160,17 @@ class _PageActivitiesState extends State<PageActivities> {
             appBar: AppBar(
               title: Text(snapshot.data!.root.name), // updated 16-dec-2022
               actions: <Widget>[
-                IconButton(icon: const Icon(Icons.home),
-                    onPressed: () {
-                      IconButton(icon: const Icon(Icons.home),
-                          onPressed: () {
-                            while(Navigator.of(context).canPop()) {
-                              print("pop");
-                              Navigator.of(context).pop();
-                            }
-                            /* this works also:
-  Navigator.popUntil(context, ModalRoute.withName('/'));
-  */
-                            PageActivities(0);
-                          });
-                    } // TODO go home page = root
-                ),
-                //TODO other actions
+              IconButton(icon: const Icon(Icons.home),
+                onPressed: () {
+                  while(Navigator.of(context).canPop()) {
+                    print("pop");
+                    Navigator.of(context).pop();
+                  }
+                  /* this works also:
+                              Navigator.popUntil(context, ModalRoute.withName('/'));
+                              */
+                  PageActivities(0);
+                }),
               ],
             ),
             body: ListView.separated(
@@ -169,6 +181,13 @@ class _PageActivitiesState extends State<PageActivities> {
                   _buildRow(snapshot.data!.root.children[index], index), // updated 16-dec-2022
               separatorBuilder: (BuildContext context, int index) =>
               const Divider(),
+            ),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                _addActivity();
+              },
+              backgroundColor: Colors.blueGrey,
+              child: const Icon(Icons.add),
             ),
           );
         } else if (snapshot.hasError) {
