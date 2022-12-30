@@ -6,7 +6,7 @@ final http.Client client = http.Client();
 // better than http.get() if multiple requests to the same server
 
 // If you connect the Android emulator to the webserver listening to localhost:8080
-const String baseUrl = "https://83f5-93-176-129-57.eu.ngrok.io";//"http://10.0.2.2:8080";
+const String baseUrl = "https://a0cf-46-6-213-0.eu.ngrok.io";//"http://10.0.2.2:8080";
 
 // If instead you want to use a real phone, you need ngrok to redirect
 // localhost:8080 to some temporal Url that ngrok.com provides for free: run
@@ -18,6 +18,7 @@ const String baseUrl = "https://83f5-93-176-129-57.eu.ngrok.io";//"http://10.0.2
 
 Future<Tree> getTree(int id) async {
   print("Start connection");
+  print("ID:   $id");
   String uri = "$baseUrl/get_tree?$id";
   final response = await client.get(Uri.parse(uri)); // updated 16-dec-2022
   // response is NOT a Future because of await but since getTree() is async,
