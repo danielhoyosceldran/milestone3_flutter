@@ -17,13 +17,21 @@ class PageIntervals extends StatefulWidget {
 
 class _PageIntervalsState extends State<PageIntervals> {
   late Tree.Tree tree;
+  late Tree.Interval _interval;
 
   late int id;
   late Future<Tree.Tree> futureTree;
 
   late Timer _timer;
   static const int periodeRefresh = 6;
-  // better a multiple of period in TimeTracker, 2 seconds
+
+  late bool active;
+  final Color _timerActive = Colors.green;
+  final Color _timerStop = Colors.red;
+  late Color _background;
+
+  // better a multi
+  // ple of period in TimeTracker, 2 seconds
 
   void _activateTimer() {
     _timer = Timer.periodic(const Duration(seconds: periodeRefresh), (Timer t) {
@@ -45,6 +53,7 @@ class _PageIntervalsState extends State<PageIntervals> {
     super.initState();
     id = widget.id;
     futureTree = requests.getTree(id);
+    _background = _timerActive;
 
     _activateTimer();
   }
@@ -82,12 +91,19 @@ class _PageIntervalsState extends State<PageIntervals> {
               separatorBuilder: (BuildContext context, int index) =>
               const Divider(),
             ),
-            floatingActionButton: FloatingActionButton (
+            floatingActionButton: FloatingActionButton(
               onPressed: () {
-                // start counting time on server
+                setState(() {
+                  if (_background == _timerStop) {
+                    _background = _timerActive;
+                  }
+                  else {
+                    _background = _timerStop;
+                  }
+                });
               },
-              backgroundColor: Colors.green,
-              child: const Icon(Icons.access_time_outlined),
+              backgroundColor: _background,
+              child: const Text("stop"),
             ),
           );
         } else if (snapshot.hasError) {
