@@ -3,7 +3,9 @@ import 'package:intellij_project/tree.dart' as Tree;
 
 import 'package:intellij_project/tree.dart' as Tree hide getTree;
 // to avoid collision with an Interval class in another library
-import 'package:intellij_project/requests.dart';
+import 'package:intellij_project/requests.dart' as requests;
+import 'package:intellij_project/page_activities.dart';
+import 'dart:async';
 
 class PageIntervals extends StatefulWidget {
   int id;
@@ -19,11 +21,32 @@ class _PageIntervalsState extends State<PageIntervals> {
   late int id;
   late Future<Tree.Tree> futureTree;
 
+  late Timer _timer;
+  static const int periodeRefresh = 6;
+  // better a multiple of period in TimeTracker, 2 seconds
+
+  void _activateTimer() {
+    _timer = Timer.periodic(const Duration(seconds: periodeRefresh), (Timer t) {
+      futureTree = requests.getTree(id);
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    // "The framework calls this method when this State object will never build again"
+    // therefore when going up
+    _timer.cancel();
+    super.dispose();
+  }
+
   @override
   void initState() {
     super.initState();
     id = widget.id;
-    futureTree = getTree(id);
+    futureTree = requests.getTree(id);
+
+    _activateTimer();
   }
 
   @override
@@ -39,19 +62,13 @@ class _PageIntervalsState extends State<PageIntervals> {
             appBar: AppBar(
               title: Text(snapshot.data!.root.name), // updated 16-dec-2022
               actions: <Widget>[
-                IconButton(icon: Icon(Icons.home),
+                IconButton(icon: const Icon(Icons.home),
                   onPressed: () {
-                    IconButton(icon: Icon(Icons.home),
-                        onPressed: () {
-                          while(Navigator.of(context).canPop()) {
-                            print("pop");
-                            Navigator.of(context).pop();
-                          }
-                          /* this works also:
-  Navigator.popUntil(context, ModalRoute.withName('/'));
-  */
-                          PageIntervals(0); // Ns si és PageIntervals o PageActivities com posava al tutorial
-                        });
+                    while(Navigator.of(context).canPop()) {
+                      //print("pop");
+                      Navigator.of(context).pop();
+                    }
+                    PageActivities(0);
                   }, // TODO
                 )
               ],
@@ -65,6 +82,13 @@ class _PageIntervalsState extends State<PageIntervals> {
               separatorBuilder: (BuildContext context, int index) =>
               const Divider(),
             ),
+            floatingActionButton: FloatingActionButton (
+              onPressed: () {
+                // start counting time on server
+              },
+              backgroundColor: Colors.green,
+              child: const Icon(Icons.access_time_outlined),
+            ),
           );
         } else if (snapshot.hasError) {
           return Text("${snapshot.error}");
@@ -73,7 +97,7 @@ class _PageIntervalsState extends State<PageIntervals> {
         return Container(
             height: MediaQuery.of(context).size.height,
             color: Colors.white,
-            child: Center(
+            child: const Center(
               child: CircularProgressIndicator(),
             ));
       },

@@ -6,7 +6,7 @@ final http.Client client = http.Client();
 // better than http.get() if multiple requests to the same server
 
 // If you connect the Android emulator to the webserver listening to localhost:8080
-const String baseUrl = "https://a0cf-46-6-213-0.eu.ngrok.io";//"http://10.0.2.2:8080";
+const String baseUrl = "https://559c-93-176-129-57.eu.ngrok.io";//"http://10.0.2.2:8080"; Si utlitzem emulador
 
 // If instead you want to use a real phone, you need ngrok to redirect
 // localhost:8080 to some temporal Url that ngrok.com provides for free: run
@@ -30,6 +30,42 @@ Future<Tree> getTree(int id) async {
     // If the server did return a 200 OK response, then parse the JSON.
     Map<String, dynamic> decoded = convert.jsonDecode(response.body);
     return Tree(decoded);
+  } else {
+    // If the server did not return a 200 OK response, then throw an exception.
+    print("statusCode=$response.statusCode");
+    throw Exception('Failed to get children');
+  }
+}
+
+Future<void> newProject(int id, String name) async {
+  String uri = "$baseUrl/newProject?$id&$name";
+  final response = await client.get(Uri.parse(uri)); // updated 16-dec-2022
+  // response is NOT a Future because of await but since getTree() is async,
+  // execution continues (leaves this function) until response is available,
+  // and then we come back here
+  if (response.statusCode == 200) {
+    print("statusCode=$response.statusCode");
+    print("-----------------${response.body}");
+    // If the server did return a 200 OK response, then parse the JSON.
+    Map<String, dynamic> decoded = convert.jsonDecode(response.body);
+  } else {
+    // If the server did not return a 200 OK response, then throw an exception.
+    print("statusCode=$response.statusCode");
+    throw Exception('Failed to get children');
+  }
+}
+
+Future<void> newTask(int id, String name) async {
+  String uri = "$baseUrl/newTask?$id&$name";
+  final response = await client.get(Uri.parse(uri)); // updated 16-dec-2022
+  // response is NOT a Future because of await but since getTree() is async,
+  // execution continues (leaves this function) until response is available,
+  // and then we come back here
+  if (response.statusCode == 200) {
+    print("statusCode=$response.statusCode");
+    print(response.body);
+    // If the server did return a 200 OK response, then parse the JSON.
+    Map<String, dynamic> decoded = convert.jsonDecode(response.body);
   } else {
     // If the server did not return a 200 OK response, then throw an exception.
     print("statusCode=$response.statusCode");

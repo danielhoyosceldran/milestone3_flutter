@@ -7,6 +7,8 @@ import 'package:intellij_project/requests.dart' as requests;
 // has the new getTree() that sends an http request to the server
 import 'dart:async';
 
+enum NewActivitySendMode { project, task }
+
 class PageActivities extends StatefulWidget {
   int id;
 
@@ -18,13 +20,13 @@ class PageActivities extends StatefulWidget {
 
 class _PageActivitiesState extends State<PageActivities> {
   late Tree tree;
-
+  final _activityNameController = TextEditingController();
   late int id; // Ha de ser late? Al tutorial no ho fica
   late Future<Tree> futureTree; // idem
 
   late Timer _timer;
   static const int periodeRefresh = 6;
-  // better a multiple of periode in TimeTracker, 2 seconds
+  // better a multiple of period in TimeTracker, 2 seconds
 
   void _activateTimer() {
     _timer = Timer.periodic(Duration(seconds: periodeRefresh), (Timer t) {
@@ -44,6 +46,7 @@ class _PageActivitiesState extends State<PageActivities> {
   @override
   void initState() {
     super.initState();
+
     id = widget.id; // of PageActivities
     futureTree = requests.getTree(id);
     _activateTimer();
@@ -73,20 +76,59 @@ class _PageActivitiesState extends State<PageActivities> {
     });
   }
 
+  OutlinedButton confirmNameButton(BuildContext context, NewActivitySendMode nasm) {
+    return OutlinedButton(
+      onPressed: () {
+        if (nasm == NewActivitySendMode.project) {
+          requests.newProject(widget.id, _activityNameController.text);
+        } else if (nasm == NewActivitySendMode.task) {
+          requests.newTask(widget.id, _activityNameController.text);
+        }
+      },
+      child: const Text("Send"),
+    );
+  }
+
   Widget _buildRowActionMenu(BuildContext context, int index) {
     if (index == 0) {
       return ListTile(
         title: const Text('Add project'),
         leading: const Icon(Icons.add),
         iconColor: Colors.blueGrey,
-        onTap: () => {},
+        onTap: () => {
+          showDialog(context: context, builder: (BuildContext context) {
+            return SimpleDialog(
+              title: const Text("Project name"),
+              children: <Widget>[
+                TextFormField(
+                  controller: _activityNameController, // ${_projectNameController.text} is what we need to get the projectName
+                  textInputAction: TextInputAction.go,
+                ),
+                confirmNameButton(context, NewActivitySendMode.project),
+              ],
+            );
+          })
+        },
       );
     }
     return ListTile(
       title: const Text('Add task'),
       leading: const Icon(Icons.add),
       iconColor: Colors.blueGrey,
-      onTap: () => {},
+      onTap: () => {
+        showDialog(context: context, builder: (BuildContext context) {
+          return SimpleDialog(
+            title: const Text("Task name"),
+            children: <Widget>[
+              TextFormField(
+                controller: _activityNameController, // ${_projectNameController.text} is what we need to get the projectName
+                textInputAction: TextInputAction.go,
+              ),
+              confirmNameButton(context, NewActivitySendMode.task),
+            ],
+          );
+        })
+      },
     );
   }
 
@@ -113,6 +155,8 @@ class _PageActivitiesState extends State<PageActivities> {
       return ListTile(
         title: Text('${activity.name}'),
         trailing: Text('$strDuration'),
+        leading: const Icon(Icons.folder),
+        iconColor: Colors.blueGrey,
         onTap: () => _navigateDownActivities(activity.id),
       );
     } else if (activity is Task) {
@@ -166,9 +210,6 @@ class _PageActivitiesState extends State<PageActivities> {
                     print("pop");
                     Navigator.of(context).pop();
                   }
-                  /* this works also:
-                              Navigator.popUntil(context, ModalRoute.withName('/'));
-                              */
                   PageActivities(0);
                 }),
               ],
