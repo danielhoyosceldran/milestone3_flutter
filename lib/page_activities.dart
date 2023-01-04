@@ -21,6 +21,7 @@ class PageActivities extends StatefulWidget {
 class _PageActivitiesState extends State<PageActivities> {
   late Tree tree;
   final _activityNameController = TextEditingController();
+  final _searchByTagController = TextEditingController();
   late int id; // Ha de ser late? Al tutorial no ho fica
   late Future<Tree> futureTree; // idem
   late bool _active;
@@ -89,48 +90,56 @@ class _PageActivitiesState extends State<PageActivities> {
         Navigator.of(context).pop();
         _activityNameController.text = "";
       },
-      child: const Text("Send"),
+      child: const Text("Add"),
+    );
+  }
+
+  OutlinedButton searchBTButton(BuildContext context) {
+    return OutlinedButton(
+      onPressed: () {
+
+      },
+      child: const Text("Search"),
+    );
+  }
+
+  SimpleDialog newActivityAction(NewActivitySendMode activityType, String title) {
+    return SimpleDialog(
+      title: Text("${title}"),
+      children: <Widget>[
+        TextFormField(
+          controller: _activityNameController, // ${_projectNameController.text} is what we need to get the projectName
+          textInputAction: TextInputAction.go,
+        ),
+        confirmNameButton(context, NewActivitySendMode.project),
+      ],
     );
   }
 
   Widget _buildRowActionMenu(BuildContext context, int index) {
+    late String buttonText;
+    late String dialogTitle;
+    late NewActivitySendMode activityType;
+
     if (index == 0) {
-      return ListTile(
-        title: const Text('Add project'),
-        leading: const Icon(Icons.add),
-        iconColor: Colors.blueGrey,
-        onTap: () => {
-          showDialog(context: context, builder: (BuildContext context) {
-            return SimpleDialog(
-              title: const Text("Project name"),
-              children: <Widget>[
-                TextFormField(
-                  controller: _activityNameController, // ${_projectNameController.text} is what we need to get the projectName
-                  textInputAction: TextInputAction.go,
-                ),
-                confirmNameButton(context, NewActivitySendMode.project),
-              ],
-            );
-          })
-        },
-      );
+      buttonText = "Add project";
+      dialogTitle = "Project name";
+      activityType = NewActivitySendMode.project;
+    } else if (index == 1) {
+      buttonText = "Add task";
+      dialogTitle = "Task name";
+      activityType = NewActivitySendMode.task;
+    } else {
+      throw Exception('Index error on add activity button');
     }
+
     return ListTile(
-      title: const Text('Add task'),
+      title: Text('${buttonText}'),
       leading: const Icon(Icons.add),
       iconColor: Colors.blueGrey,
       onTap: () => {
         showDialog(context: context, builder: (BuildContext context) {
-          return SimpleDialog(
-            title: const Text("Task name"),
-            children: <Widget>[
-              TextFormField(
-                controller: _activityNameController, // ${_projectNameController.text} is what we need to get the projectName
-                textInputAction: TextInputAction.go,
-              ),
-              confirmNameButton(context, NewActivitySendMode.task),
-            ],
-          );
+          return newActivityAction(activityType, "${dialogTitle}");
         })
       },
     );
@@ -206,18 +215,34 @@ class _PageActivitiesState extends State<PageActivities> {
         if (snapshot.hasData) {
           return Scaffold(
             appBar: AppBar(
-              title: Text(snapshot.data!.root.name), // updated 16-dec-2022
+              title: Text("Time Tracker: ${snapshot.data!.root.name}"),//Text(snapshot.data!.root.name), // updated 16-dec-2022
               actions: <Widget>[
-              IconButton(icon: const Icon(Icons.home),
-                onPressed: () {
-                  while(Navigator.of(context).canPop()) {
-                    print("pop");
-                    Navigator.of(context).pop();
-                  }
-                  PageActivities(0);
-                }),
-              ],
-            ),
+                IconButton(icon: const Icon(Icons.search),
+                    onPressed: () {
+                        print("Search by tag");
+                        showDialog(context: context, builder: (BuildContext context) {
+                          return SimpleDialog(
+                            title: const Text("Seach by tag"),
+                            children: <Widget>[
+                              TextFormField(
+                                controller: _searchByTagController, // ${_searchByTagController.text} is what we need to get the projectName
+                                textInputAction: TextInputAction.go,
+                              ),
+                              searchBTButton(context),
+                            ],
+                          );
+                        });
+                    }),
+                IconButton(icon: const Icon(Icons.home),
+                  onPressed: () {
+                    while(Navigator.of(context).canPop()) {
+                      print("pop");
+                      Navigator.of(context).pop();
+                    }
+                    PageActivities(0);
+                  }),
+                ],
+              ),
             body: ListView.separated(
               // it's like ListView.builder() but better because it includes a separator between items
               padding: const EdgeInsets.all(16.0),
