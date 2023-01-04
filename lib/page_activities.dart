@@ -23,6 +23,7 @@ class _PageActivitiesState extends State<PageActivities> {
   final _activityNameController = TextEditingController();
   late int id; // Ha de ser late? Al tutorial no ho fica
   late Future<Tree> futureTree; // idem
+  late bool _active;
 
   late Timer _timer;
   static const int periodeRefresh = 6;
@@ -45,6 +46,7 @@ class _PageActivitiesState extends State<PageActivities> {
 
   @override
   void initState() {
+    super.initState();
     super.initState();
 
     id = widget.id; // of PageActivities
@@ -84,6 +86,8 @@ class _PageActivitiesState extends State<PageActivities> {
         } else if (nasm == NewActivitySendMode.task) {
           requests.newTask(widget.id, _activityNameController.text);
         }
+        Navigator.of(context).pop();
+        _activityNameController.text = "";
       },
       child: const Text("Send"),
     );

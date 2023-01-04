@@ -17,17 +17,18 @@ class PageIntervals extends StatefulWidget {
 
 class _PageIntervalsState extends State<PageIntervals> {
   late Tree.Tree tree;
-  late Tree.Interval _interval;
+
+  late bool _builderInitState;
 
   late int id;
   late Future<Tree.Tree> futureTree;
 
   late Timer _timer;
-  static const int periodeRefresh = 6;
+  static const int periodeRefresh = 1;
 
-  late bool active;
-  final Color _timerActive = Colors.green;
-  final Color _timerStop = Colors.red;
+  late bool _active;
+  final Color _timerActiveGreen = Colors.green;
+  final Color _timerStopRed = Colors.red;
   late Color _background;
 
   // better a multi
@@ -53,7 +54,7 @@ class _PageIntervalsState extends State<PageIntervals> {
     super.initState();
     id = widget.id;
     futureTree = requests.getTree(id);
-    _background = _timerActive;
+    _builderInitState = true;
 
     _activateTimer();
   }
@@ -63,10 +64,24 @@ class _PageIntervalsState extends State<PageIntervals> {
     return FutureBuilder<Tree.Tree>(
       future: futureTree,
       // this makes the tree of children, when available, go into snapshot.data
-      builder: (context, snapshot) {
+      builder: (context, snapshot) { // S'executa cada cop
         // anonymous function
         if (snapshot.hasData) {
           int numChildren = snapshot.data!.root.children.length; // updated 16-dec-2022
+
+          // only executes first time builder's called
+          if (_builderInitState) {
+            print("-------------------");
+            if(snapshot.data!.root.active) {
+              _background = _timerStopRed;
+              _active = true;
+            } else {
+              _background = _timerActiveGreen;
+              _active = false;
+            }
+              _builderInitState = false;
+          }
+
           return Scaffold(
             appBar: AppBar(
               title: Text(snapshot.data!.root.name), // updated 16-dec-2022
@@ -91,19 +106,21 @@ class _PageIntervalsState extends State<PageIntervals> {
               separatorBuilder: (BuildContext context, int index) =>
               const Divider(),
             ),
-            floatingActionButton: FloatingActionButton(
-              onPressed: () {
-                setState(() {
-                  if (_background == _timerStop) {
-                    _background = _timerActive;
-                  }
-                  else {
-                    _background = _timerStop;
-                  }
-                });
+            floatingActionButton: FloatingActionButton.extended(
+              onPressed: () { //arreglar
+                if ((_background == _timerActiveGreen) && (_active == false)) {
+                  _background = _timerStopRed;
+                  requests.start(widget.id);
+                  _active = true;
+                }
+                else if ((snapshot.data!.root.children[snapshot.data!.root.children.length - 1].duration >= 2) && (_active == true)){ // Condition: if last interval duration < 2
+                  _background = _timerActiveGreen;
+                  requests.stop(widget.id);
+                  _active = false;
+                }
               },
               backgroundColor: _background,
-              child: const Text("stop"),
+              label: const Text("start/stop"),
             ),
           );
         } else if (snapshot.hasError) {

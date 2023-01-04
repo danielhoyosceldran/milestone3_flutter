@@ -9,6 +9,7 @@ final DateFormat _dateFormatter = DateFormat("yyyy-MM-dd HH:mm:ss");
 abstract class Activity {
   late int id;
   late String name;
+  late bool active;
   DateTime? initialDate;
   DateTime? finalDate;
   late int duration;
@@ -19,7 +20,8 @@ abstract class Activity {
         name = json['name'],
         initialDate = json['initialDate']==null ? null : _dateFormatter.parse(json['initialDate']),
         finalDate = json['finalDate']==null ? null : _dateFormatter.parse(json['finalDate']),
-        duration = json['duration'];
+        duration = json['duration'],
+        active = json['active'];
 }
 
 
