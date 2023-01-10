@@ -26,7 +26,6 @@ class _PageIntervalsState extends State<PageIntervals> {
   late Timer _timer;
   static const int periodeRefresh = 1;
 
-  late bool _active;
   final Color _timerActiveGreen = Colors.green;
   final Color _timerStopRed = Colors.red;
   late Color _background;
@@ -71,17 +70,13 @@ class _PageIntervalsState extends State<PageIntervals> {
 
           // only executes first time builder's called
           if (_builderInitState) {
-            print("-------------------");
             if(snapshot.data!.root.active) {
               _background = _timerStopRed;
-              _active = true;
             } else {
               _background = _timerActiveGreen;
-              _active = false;
             }
-              _builderInitState = false;
+            _builderInitState = false;
           }
-
           return Scaffold(
             appBar: AppBar(
               title: Text(snapshot.data!.root.name), // updated 16-dec-2022
@@ -107,16 +102,13 @@ class _PageIntervalsState extends State<PageIntervals> {
               const Divider(),
             ),
             floatingActionButton: FloatingActionButton.extended(
-              onPressed: () { //arreglar
-                if ((_background == _timerActiveGreen) && (_active == false)) {
-                  _background = _timerStopRed;
-                  requests.start(widget.id);
-                  _active = true;
-                }
-                else if ((snapshot.data!.root.children[snapshot.data!.root.children.length - 1].duration >= 2) && (_active == true)){ // Condition: if last interval duration < 2
+              onPressed: () {
+                if (snapshot.data!.root.active && (snapshot.data!.root.duration > 2)) { // active == true
                   _background = _timerActiveGreen;
                   requests.stop(widget.id);
-                  _active = false;
+                } else if (!snapshot.data!.root.active && (_background == _timerActiveGreen)){
+                  _background = _timerStopRed;
+                  requests.start(widget.id);
                 }
               },
               backgroundColor: _background,

@@ -27,7 +27,7 @@ class _PageActivitiesState extends State<PageActivities> {
   late bool _active;
 
   late Timer _timer;
-  static const int periodeRefresh = 6;
+  static const int periodeRefresh = 2;
   // better a multiple of period in TimeTracker, 2 seconds
 
   void _activateTimer() {
@@ -80,12 +80,19 @@ class _PageActivitiesState extends State<PageActivities> {
   }
 
   OutlinedButton confirmNameButton(BuildContext context, NewActivitySendMode nasm) {
-    return OutlinedButton(
+        return OutlinedButton(
       onPressed: () {
+        late String name;
+        if (_activityNameController.text == "") {
+          name = "Default";
+        } else {
+          name = _activityNameController.text;
+        }
+
         if (nasm == NewActivitySendMode.project) {
-          requests.newProject(widget.id, _activityNameController.text);
+          requests.newProject(widget.id, name);
         } else if (nasm == NewActivitySendMode.task) {
-          requests.newTask(widget.id, _activityNameController.text);
+          requests.newTask(widget.id, name);
         }
         Navigator.of(context).pop();
         _activityNameController.text = "";
@@ -111,7 +118,7 @@ class _PageActivitiesState extends State<PageActivities> {
           controller: _activityNameController, // ${_projectNameController.text} is what we need to get the projectName
           textInputAction: TextInputAction.go,
         ),
-        confirmNameButton(context, NewActivitySendMode.project),
+        confirmNameButton(context, activityType),
       ],
     );
   }
