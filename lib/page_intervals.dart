@@ -26,6 +26,8 @@ class _PageIntervalsState extends State<PageIntervals> {
   late Timer _timer;
   static const int periodeRefresh = 1;
 
+  late bool _active;
+  late bool _activeToggleButton;
   final Color _timerActiveGreen = Colors.green;
   final Color _timerStopRed = Colors.red;
   late Color _background;
@@ -58,6 +60,10 @@ class _PageIntervalsState extends State<PageIntervals> {
     _activateTimer();
   }
 
+  void _checkActive(Tree.Interval interval, int size) {
+
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Tree.Tree>(
@@ -71,12 +77,29 @@ class _PageIntervalsState extends State<PageIntervals> {
           // only executes first time builder's called
           if (_builderInitState) {
             if(snapshot.data!.root.active) {
+              _active = true;
               _background = _timerStopRed;
             } else {
+              _active = false;
               _background = _timerActiveGreen;
             }
             _builderInitState = false;
           }
+
+          // executed every all the time
+          if (snapshot.data!.root.children.length > 0) { // Hi ha intervals
+            int size = snapshot.data!.root.children.length;
+            Tree.Interval interval = snapshot.data!.root.children[size - 1];
+
+            if ((interval.duration < 2) && _active) {
+              _activeToggleButton = false;
+            } else {
+              _activeToggleButton = true;
+            }
+          } else { // No hi ha cap interval
+            _activeToggleButton = true;
+          }
+
           return Scaffold(
             appBar: AppBar(
               title: Text(snapshot.data!.root.name), // updated 16-dec-2022
@@ -102,15 +125,19 @@ class _PageIntervalsState extends State<PageIntervals> {
               const Divider(),
             ),
             floatingActionButton: FloatingActionButton.extended(
-              onPressed: () {
-                if (snapshot.data!.root.active && (snapshot.data!.root.duration > 2)) { // active == true
+              onPressed: _activeToggleButton
+              ? () {
+                if (_background == _timerStopRed) { // active == true
+                  _active = false;
                   _background = _timerActiveGreen;
                   requests.stop(widget.id);
-                } else if (!snapshot.data!.root.active && (_background == _timerActiveGreen)){
+                } else if (_background == _timerActiveGreen){
+                  _active = true;
                   _background = _timerStopRed;
                   requests.start(widget.id);
                 }
-              },
+              }
+              : null,
               backgroundColor: _background,
               label: const Text("start/stop"),
             ),

@@ -171,10 +171,17 @@ class _PageActivitiesState extends State<PageActivities> {
   Widget _buildRow(Activity activity, int index) {
     String strDuration = Duration(seconds: activity.duration).toString().split('.').first;
     // split by '.' and taking first element of resulting list removes the microseconds part
+    late Color c;
+    if (activity.active) {
+      c = Colors.green;
+    } else{
+      c = Colors.black;
+    }
     if (activity is Project) {
       return ListTile(
         title: Text('${activity.name}'),
         trailing: Text('$strDuration'),
+        textColor: c,
         leading: const Icon(Icons.folder),
         iconColor: Colors.blueGrey,
         onTap: () => _navigateDownActivities(activity.id),
@@ -188,6 +195,7 @@ class _PageActivitiesState extends State<PageActivities> {
       return ListTile(
         title: Text('${activity.name}'),
         trailing: trailing,
+        textColor: c,
         onTap: () => _navigateDownIntervals(activity.id),
         onLongPress: () {
           if ((activity as Task).active) {
@@ -226,10 +234,9 @@ class _PageActivitiesState extends State<PageActivities> {
               actions: <Widget>[
                 IconButton(icon: const Icon(Icons.search),
                     onPressed: () {
-                        print("Search by tag");
                         showDialog(context: context, builder: (BuildContext context) {
                           return SimpleDialog(
-                            title: const Text("Seach by tag"),
+                            title: const Text("Search by tag"),
                             children: <Widget>[
                               TextFormField(
                                 controller: _searchByTagController, // ${_searchByTagController.text} is what we need to get the projectName
@@ -255,7 +262,7 @@ class _PageActivitiesState extends State<PageActivities> {
               padding: const EdgeInsets.all(16.0),
               itemCount: snapshot.data!.root.children.length, // updated 16-dec-2022
               itemBuilder: (BuildContext context, int index) =>
-                  _buildRow(snapshot.data!.root.children[index], index), // updated 16-dec-2022
+                  _buildRow(snapshot.data!.root.children[index], index, ), // updated 16-dec-2022
               separatorBuilder: (BuildContext context, int index) =>
               const Divider(),
             ),
