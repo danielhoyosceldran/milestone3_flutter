@@ -24,14 +24,13 @@ class _PageActivitiesState extends State<PageActivities> {
   final _searchByTagController = TextEditingController();
   late int id; // Ha de ser late? Al tutorial no ho fica
   late Future<Tree> futureTree; // idem
-  late bool _active;
 
   late Timer _timer;
   static const int periodeRefresh = 2;
   // better a multiple of period in TimeTracker, 2 seconds
 
   void _activateTimer() {
-    _timer = Timer.periodic(Duration(seconds: periodeRefresh), (Timer t) {
+    _timer = Timer.periodic(const Duration(seconds: periodeRefresh), (Timer t) {
       futureTree = requests.getTree(id);
       setState(() {});
     });
@@ -57,7 +56,7 @@ class _PageActivitiesState extends State<PageActivities> {
 
   void _navigateDownActivities(int childId) {
     _timer.cancel();
-    // we can not do just _refresh() because then the up arrow doesnt appear in the appbar
+    // we can not do just _refresh() because then the up arrow doesn't appear in the appbar
     Navigator.of(context)
         .push(MaterialPageRoute<void>(
       builder: (context) => PageActivities(childId),
@@ -80,7 +79,7 @@ class _PageActivitiesState extends State<PageActivities> {
   }
 
   OutlinedButton confirmNameButton(BuildContext context, NewActivitySendMode nasm) {
-        return OutlinedButton(
+    return OutlinedButton(
       onPressed: () {
         late String name;
         if (_activityNameController.text == "") {
@@ -112,7 +111,7 @@ class _PageActivitiesState extends State<PageActivities> {
 
   SimpleDialog newActivityAction(NewActivitySendMode activityType, String title) {
     return SimpleDialog(
-      title: Text("${title}"),
+      title: Text(title),
       children: <Widget>[
         TextFormField(
           controller: _activityNameController, // ${_projectNameController.text} is what we need to get the projectName
@@ -141,12 +140,12 @@ class _PageActivitiesState extends State<PageActivities> {
     }
 
     return ListTile(
-      title: Text('${buttonText}'),
+      title: Text(buttonText),
       leading: const Icon(Icons.add),
       iconColor: Colors.blueGrey,
       onTap: () => {
         showDialog(context: context, builder: (BuildContext context) {
-          return newActivityAction(activityType, "${dialogTitle}");
+          return newActivityAction(activityType, dialogTitle);
         })
       },
     );
@@ -156,7 +155,7 @@ class _PageActivitiesState extends State<PageActivities> {
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
-        return Container(
+        return SizedBox(
           height: 130,
           child: ListView.separated(
               itemBuilder: (BuildContext context, int index) => _buildRowActionMenu(context, index),
@@ -165,6 +164,36 @@ class _PageActivitiesState extends State<PageActivities> {
           ),
         );
       },
+    );
+  }
+
+  Row _activityTrailing(String strDuration, Activity activity, String type) {
+    return (
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(strDuration, textAlign: TextAlign.right),
+            IconButton(
+                onPressed: () {
+                  showDialog(context: context, builder: (BuildContext context) {
+                    return (
+                        SimpleDialog(
+                          title: Text("${activity.name} information"),
+                          children: <Widget>[
+                            Text("      Type: $type"),
+                            Text("      Name: ${activity.name}"),
+                            Text("      Duration: ${activity.duration} seconds"),
+                            Text("      Active: ${activity.active}"),
+                            Text("      Id: ${activity.id}"),
+                          ],
+                        )
+                    );
+                  });
+                },
+                icon: const Icon(Icons.info_outline))
+          ],
+        )
     );
   }
 
@@ -179,24 +208,22 @@ class _PageActivitiesState extends State<PageActivities> {
     }
     if (activity is Project) {
       return ListTile(
-        title: Text('${activity.name}'),
-        trailing: Text('$strDuration'),
+        title: Text(activity.name),
+        trailing: _activityTrailing(strDuration, activity, "project"),
         textColor: c,
         leading: const Icon(Icons.folder),
         iconColor: Colors.blueGrey,
         onTap: () => _navigateDownActivities(activity.id),
       );
     } else if (activity is Task) {
-      Task task = activity as Task;
-      // at the moment is the same, maybe changes in the future
-      Widget trailing;
-      trailing = Text('$strDuration');
+      //Task task = activity as Task;
 
       return ListTile(
-        title: Text('${activity.name}'),
-        trailing: trailing,
+        title: Text(activity.name),
+        trailing: _activityTrailing(strDuration, activity, "task"),
         textColor: c,
         onTap: () => _navigateDownIntervals(activity.id),
+        /*
         onLongPress: () {
           if ((activity as Task).active) {
             requests.stop(activity.id);
@@ -206,6 +233,7 @@ class _PageActivitiesState extends State<PageActivities> {
             _refresh(); // to show immediately that task has stopped
           }
         },
+         */
       );
     }
     return const ListTile(
@@ -250,7 +278,6 @@ class _PageActivitiesState extends State<PageActivities> {
                 IconButton(icon: const Icon(Icons.home),
                   onPressed: () {
                     while(Navigator.of(context).canPop()) {
-                      print("pop");
                       Navigator.of(context).pop();
                     }
                     PageActivities(0);

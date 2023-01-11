@@ -26,6 +26,7 @@ class _PageIntervalsState extends State<PageIntervals> {
   late Timer _timer;
   static const int periodeRefresh = 1;
 
+  late String _activeText;
   late bool _active;
   late bool _activeToggleButton;
   final Color _timerActiveGreen = Colors.green;
@@ -60,16 +61,12 @@ class _PageIntervalsState extends State<PageIntervals> {
     _activateTimer();
   }
 
-  void _checkActive(Tree.Interval interval, int size) {
-
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Tree.Tree>(
       future: futureTree,
       // this makes the tree of children, when available, go into snapshot.data
-      builder: (context, snapshot) { // S'executa cada cop
+      builder: (context, snapshot) {
         // anonymous function
         if (snapshot.hasData) {
           int numChildren = snapshot.data!.root.children.length; // updated 16-dec-2022
@@ -78,16 +75,18 @@ class _PageIntervalsState extends State<PageIntervals> {
           if (_builderInitState) {
             if(snapshot.data!.root.active) {
               _active = true;
+              _activeText = "Stop";
               _background = _timerStopRed;
             } else {
               _active = false;
+              _activeText = "Start";
               _background = _timerActiveGreen;
             }
             _builderInitState = false;
           }
 
           // executed every all the time
-          if (snapshot.data!.root.children.length > 0) { // Hi ha intervals
+          if (snapshot.data!.root.children.isNotEmpty) { // Hi ha intervals
             int size = snapshot.data!.root.children.length;
             Tree.Interval interval = snapshot.data!.root.children[size - 1];
 
@@ -129,17 +128,19 @@ class _PageIntervalsState extends State<PageIntervals> {
               ? () {
                 if (_background == _timerStopRed) { // active == true
                   _active = false;
+                  _activeText = "Start";
                   _background = _timerActiveGreen;
                   requests.stop(widget.id);
                 } else if (_background == _timerActiveGreen){
                   _active = true;
+                  _activeText = "Stop";
                   _background = _timerStopRed;
                   requests.start(widget.id);
                 }
               }
               : null,
               backgroundColor: _background,
-              label: const Text("start/stop"),
+              label: Text(_activeText),
             ),
           );
         } else if (snapshot.hasError) {
@@ -155,14 +156,29 @@ class _PageIntervalsState extends State<PageIntervals> {
       },
     );
   }
+
   Widget _buildRow(Tree.Interval interval, int index) {
     String strDuration = Duration(seconds: interval.duration).toString().split('.').first;
     String strInitialDate = interval.initialDate.toString().split('.')[0];
+    late Icon activeIcon;
+    if (interval.active) {
+      activeIcon = const Icon(Icons.play_arrow_outlined, color: Colors.green);
+    } else {
+      activeIcon = const Icon(Icons.pause_circle_outline_outlined, color: Colors.black54);
+    }
     // this removes the microseconds part
     String strFinalDate = interval.finalDate.toString().split('.')[0];
     return ListTile(
-      title: Text('from:  ${strInitialDate} \nto:       ${strFinalDate}'),
-      trailing: Text('$strDuration'),
+      title: Text('from:  $strInitialDate \nto:       $strFinalDate'),
+      trailing: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text("$strDuration  ", textAlign: TextAlign.right),
+          const SizedBox(width: 10),
+          activeIcon
+        ],
+      ),
     );
   }
 }
